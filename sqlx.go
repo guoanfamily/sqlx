@@ -1066,7 +1066,7 @@ func (db *DB)QuerybySql(sql string,args ...interface{}) []interface{}{
 	if err != nil {
 		fmt.Println(err)
 	}
-	//fmt.Println(string(alldata))
+	fmt.Println(string(alldata))
 	return retmaps
 }
 /**
