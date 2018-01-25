@@ -1066,7 +1066,7 @@ func (db *DB)QuerybySql(sql string,args ...interface{}) []interface{}{
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(string(alldata))
+	//fmt.Println(string(alldata))
 	return retmaps
 }
 /**
@@ -1096,12 +1096,12 @@ func (db *DB)QueryStruct(dict interface{},sql string,args...interface{}) error{
 		//进行数据库返回结果到struct的映射转换,目前统一影射为string,待增加类型映射
 		for i:= range values{
 			structName := strFirstToUpper(columns[i])
-			fmt.Println(structName)
+			//fmt.Println(structName)
 			sv := dictStruct.Elem().FieldByName(structName)
 
 			rv :=*(values[i].(*interface{}))
-			fmt.Println(rv)
-			fmt.Println(sv)
+			//fmt.Println(rv)
+			//fmt.Println(sv)
 			//var structValue string
 			FilterDbValue(sv,rv)
 			//if rv :=*(values[i].(*interface{}));rv!=nil {
@@ -1154,7 +1154,7 @@ func strFirstToUpper(str string) string {
  */
 func FilterDbValue(sv reflect.Value,rv interface{}) error {
 	valueType := sv.Type()
-	fmt.Println(valueType.Kind())
+	//fmt.Println(valueType.Kind())
 	switch valueType.Kind() {
 	case reflect.Int,reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		if  rv== nil {
@@ -1165,7 +1165,7 @@ func FilterDbValue(sv reflect.Value,rv interface{}) error {
 				sv.SetInt(value.Int())
 			}else{
 				str :=byteString(value.Bytes())
-				fmt.Println(str)
+				//fmt.Println(str)
 				ivalue,err := strconv.Atoi(str)
 				if err!=nil{
 					panic(err)
