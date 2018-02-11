@@ -361,6 +361,7 @@ func (db *DB) QueryRowx(query string, args ...interface{}) *Row {
 // MustExec (panic) runs MustExec using this database.
 // Any placeholder parameters are replaced with supplied args.
 func (db *DB) MustExec(query string, args ...interface{}) sql.Result {
+	fmt.Println(query,args)
 	return MustExec(db, query, args...)
 }
 
@@ -1038,6 +1039,7 @@ func missingFields(transversals [][]int) (field int, err error) {
 
 
 func (db *DB)QuerybySql(sql string,args ...interface{}) []interface{}{
+	fmt.Println(sql) //log
 	var retmaps []interface{}
 	rows,err:=db.Query(sql,args ...)
 	if(err!=nil){
