@@ -15,6 +15,7 @@ import (
 	"github.com/guoanfamily/sqlx/reflectx"
 	"encoding/json"
 	"strconv"
+	"log"
 )
 
 // Although the NameMapper is convenient, in practice it should not
@@ -28,7 +29,7 @@ import (
 // as name-to-field mappings are cached after first use on a type.
 var NameMapper = strings.ToLower
 var origMapper = reflect.ValueOf(NameMapper)
-
+var OPENLOG bool
 // Rather than creating on init, this is created when necessary so that
 // importers have time to customize the NameMapper.
 var mpr *reflectx.Mapper
@@ -354,6 +355,8 @@ func (db *DB) Queryx(query string, args ...interface{}) (*Rows, error) {
 // QueryRowx queries the database and returns an *sqlx.Row.
 // Any placeholder parameters are replaced with supplied args.
 func (db *DB) QueryRowx(query string, args ...interface{}) *Row {
+	s := getargsLog(args)
+	printLog(query,s)
 	rows, err := db.DB.Query(query, args...)
 	return &Row{rows: rows, err: err, unsafe: db.unsafe, Mapper: db.Mapper}
 }
@@ -361,8 +364,25 @@ func (db *DB) QueryRowx(query string, args ...interface{}) *Row {
 // MustExec (panic) runs MustExec using this database.
 // Any placeholder parameters are replaced with supplied args.
 func (db *DB) MustExec(query string, args ...interface{}) sql.Result {
-	fmt.Println(query,args)
+	s := getargsLog(args...)
+	printLog(query,s)
 	return MustExec(db, query, args...)
+}
+func getargsLog(args ...interface{}) string {
+	var s string
+	for _, v := range (args) {
+
+		if (reflect.ValueOf(v).Kind() == reflect.Ptr) {
+			if reflect.ValueOf(v).IsNil() {
+				s = fmt.Sprintf("%s,%s", s, "null")
+			} else {
+				s = fmt.Sprintf("%s,%s", s, reflect.ValueOf(v).Elem())
+			}
+		} else {
+			s = fmt.Sprintf("%s,%v", s, v)
+		}
+	}
+	return s
 }
 
 // Preparex returns an sqlx.Stmt instead of a sql.Stmt
@@ -626,6 +646,15 @@ func (r *Rows) StructScan(dest interface{}) error {
 	return r.Err()
 }
 
+func OpenLog(){
+	OPENLOG = true
+}
+
+func printLog(v ...interface{}) {
+	if OPENLOG{
+		log.Println(v...)
+	}
+}
 // Connect to a database and verify with a ping.
 func Connect(driverName, dataSourceName string) (*DB, error) {
 	db, err := Open(driverName, dataSourceName)
@@ -660,6 +689,7 @@ func Preparex(p Preparer, query string) (*Stmt, error) {
 // The *sql.Rows are closed automatically.
 // Any placeholder parameters are replaced with supplied args.
 func Select(q Queryer, dest interface{}, query string, args ...interface{}) error {
+	fmt.Sprint(query, args)
 	rows, err := q.Queryx(query, args...)
 	if err != nil {
 		return err
@@ -1039,7 +1069,7 @@ func missingFields(transversals [][]int) (field int, err error) {
 
 
 func (db *DB)QuerybySql(sql string,args ...interface{}) []interface{}{
-	fmt.Println(sql) //log
+	printLog(sql) //log
 	var retmaps []interface{}
 	rows,err:=db.Query(sql,args ...)
 	if(err!=nil){
@@ -1217,9 +1247,6 @@ func FilterDbValue(sv reflect.Value,rv interface{}) error {
 	}
 	return nil
 }
-
-
-
 
 
 func byteString(p []byte) string {
