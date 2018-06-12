@@ -369,6 +369,9 @@ func (db *DB) MustExec(query string, args ...interface{}) sql.Result {
 	return MustExec(db, query, args...)
 }
 func getargsLog(args ...interface{}) string {
+	if OPENLOG{
+		return ""
+	}
 	var s string
 	for _, v := range (args) {
 
@@ -455,6 +458,8 @@ func (tx *Tx) Queryx(query string, args ...interface{}) (*Rows, error) {
 // QueryRowx within a transaction.
 // Any placeholder parameters are replaced with supplied args.
 func (tx *Tx) QueryRowx(query string, args ...interface{}) *Row {
+	s := getargsLog(args...)
+	printLog(query,s)
 	rows, err := tx.Tx.Query(query, args...)
 	return &Row{rows: rows, err: err, unsafe: tx.unsafe, Mapper: tx.Mapper}
 }
@@ -689,7 +694,7 @@ func Preparex(p Preparer, query string) (*Stmt, error) {
 // The *sql.Rows are closed automatically.
 // Any placeholder parameters are replaced with supplied args.
 func Select(q Queryer, dest interface{}, query string, args ...interface{}) error {
-	fmt.Sprint(query, args)
+	printLog(query, args)
 	rows, err := q.Queryx(query, args...)
 	if err != nil {
 		return err
@@ -736,6 +741,8 @@ func LoadFile(e Execer, path string) (*sql.Result, error) {
 // MustExec execs the query using e and panics if there was an error.
 // Any placeholder parameters are replaced with supplied args.
 func MustExec(e Execer, query string, args ...interface{}) sql.Result {
+	s := getargsLog(args...)
+	printLog(query,s)
 	res, err := e.Exec(query, args...)
 	if err != nil {
 		panic(err)
@@ -1105,6 +1112,7 @@ func (db *DB)QuerybySql(sql string,args ...interface{}) []interface{}{
  * 查询返回结构体数组
  */
 func (db *DB)QueryStruct(dict interface{},sql string,args...interface{}) error{
+	printLog(sql,s)
 	structArray := reflect.ValueOf(dict).Elem() //传入值为结构化数组指针，需获取他的值&[]user
 
 	rows,err:=db.Query(sql,args ...)
