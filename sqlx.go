@@ -1112,7 +1112,7 @@ func (db *DB)QuerybySql(sql string,args ...interface{}) []interface{}{
  * 查询返回结构体数组
  */
 func (db *DB)QueryStruct(dict interface{},sql string,args...interface{}) error{
-	printLog(sql,s)
+	printLog(sql,args)
 	structArray := reflect.ValueOf(dict).Elem() //传入值为结构化数组指针，需获取他的值&[]user
 
 	rows,err:=db.Query(sql,args ...)
