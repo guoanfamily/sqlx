@@ -367,7 +367,7 @@ func (db *DB) MustExec(query string, args ...interface{}) sql.Result {
 	return MustExec(db, query, args...)
 }
 func getargsLog(args ...interface{}) string {
-	if OPENLOG{
+	if !OPENLOG{
 		return ""
 	}
 	var s string
