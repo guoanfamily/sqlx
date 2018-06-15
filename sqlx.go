@@ -355,7 +355,7 @@ func (db *DB) Queryx(query string, args ...interface{}) (*Rows, error) {
 // QueryRowx queries the database and returns an *sqlx.Row.
 // Any placeholder parameters are replaced with supplied args.
 func (db *DB) QueryRowx(query string, args ...interface{}) *Row {
-	s := getargsLog(args)
+	s := getargsLog(args...)
 	printLog(query,s)
 	rows, err := db.DB.Query(query, args...)
 	return &Row{rows: rows, err: err, unsafe: db.unsafe, Mapper: db.Mapper}
@@ -364,8 +364,6 @@ func (db *DB) QueryRowx(query string, args ...interface{}) *Row {
 // MustExec (panic) runs MustExec using this database.
 // Any placeholder parameters are replaced with supplied args.
 func (db *DB) MustExec(query string, args ...interface{}) sql.Result {
-	s := getargsLog(args...)
-	printLog(query,s)
 	return MustExec(db, query, args...)
 }
 func getargsLog(args ...interface{}) string {
