@@ -358,6 +358,7 @@ func (db *DB) QueryRowx(query string, args ...interface{}) *Row {
 	s := getargsLog(args...)
 	printLog(query,s)
 	rows, err := db.DB.Query(query, args...)
+	check_eorr(err,query)
 	return &Row{rows: rows, err: err, unsafe: db.unsafe, Mapper: db.Mapper}
 }
 
@@ -653,6 +654,23 @@ func OpenLog(){
 	OPENLOG = true
 }
 
+
+func check_eorr(err error,exesql string){
+	defer func() {
+
+		if r := recover(); r != nil {
+			fmt.Printf("get error infomation：%s\n", r)
+		}
+	}()
+
+	if err != nil {
+		fmt.Println("query or exec error：",exesql)
+		panic(err)
+
+	}
+}
+
+
 func printLog(v ...interface{}) {
 	if OPENLOG{
 		log.Println(v...)
@@ -694,6 +712,7 @@ func Preparex(p Preparer, query string) (*Stmt, error) {
 func Select(q Queryer, dest interface{}, query string, args ...interface{}) error {
 	printLog(query, args)
 	rows, err := q.Queryx(query, args...)
+	check_eorr(err,query)
 	if err != nil {
 		return err
 	}
@@ -742,6 +761,7 @@ func MustExec(e Execer, query string, args ...interface{}) sql.Result {
 	s := getargsLog(args...)
 	printLog(query,s)
 	res, err := e.Exec(query, args...)
+	check_eorr(err,query)
 	if err != nil {
 		panic(err)
 	}
